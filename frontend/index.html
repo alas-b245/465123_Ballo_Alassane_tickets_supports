@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support Desk</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <span class="eyebrow">ACME SUPPORT</span>
+      <h1>Обращения</h1>
+    </div>
+    <label class="identity">Работать как
+      <select id="identity">
+        <option value="alice-token">Alice · USER</option>
+        <option value="bob-token">Bob · USER</option>
+        <option value="support-token">Support · SUPPORT</option>
+        <option value="admin-token">Admin · ADMIN</option>
+      </select>
+    </label>
+  </header>
+
+  <main>
+    <section class="panel list-panel">
+      <div class="panel-title">
+        <h2>Все обращения</h2>
+        <button id="refresh" class="secondary">Обновить</button>
+      </div>
+      <div id="notice" class="notice hidden"></div>
+      <div id="ticket-list" class="ticket-list"></div>
+    </section>
+
+    <section class="right-column">
+      <form id="create-form" class="panel create-panel">
+        <div class="panel-title"><h2>Новое обращение</h2></div>
+        <label>Тема<input name="title" required maxlength="120" placeholder="Коротко опишите проблему"></label>
+        <label>Описание<textarea name="description" required rows="4" placeholder="Что произошло?"></textarea></label>
+        <label>Приоритет
+          <select name="priority"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option></select>
+        </label>
+        <button type="submit">Создать</button>
+        <p class="hint">Определение категории может занять некоторое время.</p>
+      </form>
+
+      <section id="details" class="panel details-panel empty">
+        <div class="empty-state">Выберите обращение слева, чтобы увидеть детали и историю.</div>
+      </section>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
+
