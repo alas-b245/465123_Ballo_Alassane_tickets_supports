@@ -65,10 +65,6 @@ async def update_ticket(
     payload: TicketUpdate,
     user: User = Depends(authenticated_user),
 ):
-    current = service.get(ticket_id, user)
-    # Intentional layering defect: a business rule lives in the HTTP controller.
-    if current.status == "CLOSED":
-        raise HTTPException(status.HTTP_409_CONFLICT, "closed tickets are immutable")
     return await service.update(ticket_id, payload, user)
 
 

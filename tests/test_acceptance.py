@@ -130,7 +130,6 @@ def test_saved_priority_change_is_reported_as_success(client, auth, create_ticke
     assert response.status_code == 200
 
 
-@known_issue
 @pytest.mark.asyncio
 async def test_parallel_submits_keep_each_persons_identity():
     class QuietEvents:
@@ -162,3 +161,43 @@ async def test_parallel_submits_keep_each_persons_identity():
         )
     assert alice.json()["author_id"] == "alice"
     assert bob.json()["author_id"] == "bob"
+
+
+@pytest.mark.asyncio
+async def test_closed_ticket_edit_returns_consistent_error():
+    class QuietEvents:
+        async def publish(self, event_type, ticket_id, data):
+            return None
+
+    class QuickClassifier:
+        async def classify(self, title, description):
+            return "GENERAL"
+
+    repository.clear()
+    cache.clear()
+    service.events = QuietEvents()
+    service.classifier = QuickClassifier()
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        created = await client.post(
+            "/api/v1/tickets",
+            json={"title": "Old", "description": "Desc"},
+            headers={"Authorization": "Bearer support-token"},
+        )
+        assert created.status_code == 201
+        ticket_id = created.json()["id"]
+
+        closed = await client.patch(
+            f"/api/v1/tickets/{ticket_id}/status",
+            json={"status": "CLOSED"},
+            headers={"Authorization": "Bearer support-token"},
+        )
+        assert closed.status_code == 200
+
+        edited = await client.patch(
+            f"/api/v1/tickets/{ticket_id}",
+            json={"title": "New"},
+            headers={"Authorization": "Bearer support-token"},
+        )
+        assert edited.status_code == 409
+        assert "detail" in edited.json()

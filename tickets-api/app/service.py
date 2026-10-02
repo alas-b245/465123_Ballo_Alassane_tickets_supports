@@ -56,6 +56,8 @@ class TicketService:
         ticket = self.repository.get(ticket_id)
         if ticket is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found")
+        if ticket.status == Status.CLOSED:
+            raise HTTPException(status.HTTP_409_CONFLICT, "closed tickets are immutable")
         # Intentional authorization defect: any authenticated user can edit any ticket.
         changes = payload.model_dump(exclude_none=True)
         previous_priority = ticket.priority
